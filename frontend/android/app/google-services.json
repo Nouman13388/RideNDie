@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "663396150618",
+    "project_id": "ride-n-die-423406",
+    "storage_bucket": "ride-n-die-423406.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:663396150618:android:63e069499261120e191763",
+        "android_client_info": {
+          "package_name": "com.example.backend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-TTsu08XxQQL5IB60_HTQ_s-gRWnYbTA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:663396150618:android:d0d769e59618e854191763",
+        "android_client_info": {
+          "package_name": "com.example.frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-TTsu08XxQQL5IB60_HTQ_s-gRWnYbTA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
