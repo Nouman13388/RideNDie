@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/screens/bottom_navbar.dart';
+import 'package:frontend/views/bottom_navbar.dart';
 
 class PublishAdScreen extends StatefulWidget {
   const PublishAdScreen({Key? key}) : super(key: key);

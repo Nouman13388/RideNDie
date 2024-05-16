@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/firebase_options.dart';
-import 'package:frontend/screens/login_page.dart';
+import 'package:frontend/views/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -24,9 +24,9 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  SharedPreferences? prefs;
-  
-  MyApp({super.key, this.prefs});
+  final SharedPreferences? prefs;
+
+  const MyApp({super.key, this.prefs});
 
   @override
   Widget build(BuildContext context) {
@@ -36,4 +36,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

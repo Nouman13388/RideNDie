@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:frontend/screens/login_page.dart';
-import 'package:frontend/screens/profile_pages/account_setting_page.dart';
-import 'package:frontend/screens/profile_pages/notification_preference_page.dart';
-import 'package:frontend/screens/profile_pages/privacy_policy_page.dart';
-import 'package:frontend/screens/profile_pages/terms_of_service_page.dart';
+import 'package:frontend/views/login_page.dart';
+import 'package:frontend/views/profile_pages/account_setting_page.dart';
+import 'package:frontend/views/profile_pages/notification_preference_page.dart';
+import 'package:frontend/views/profile_pages/privacy_policy_page.dart';
+import 'package:frontend/views/profile_pages/terms_of_service_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

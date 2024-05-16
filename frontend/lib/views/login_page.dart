@@ -1,31 +1,24 @@
-import 'package:flutter/material.dart';
+// views/login_page.dart
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:frontend/screens/bottom_navbar.dart';
+import 'package:flutter/material.dart';
+import 'package:frontend/controllers/auth_controller.dart';
+import 'package:frontend/views/bottom_navbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'signup_page.dart';
-  
 
 class LoginPage extends StatefulWidget {
-  SharedPreferences prefs;
+  final SharedPreferences prefs;
 
-  LoginPage({super.key, required this.prefs});
-  
-  void setPrefs(SharedPreferences prefs) {
-    this.prefs = prefs;
-  }
-
-  SharedPreferences? getPrefs() {
-    return prefs;
-  }
-
+  const LoginPage({super.key, required this.prefs});
 
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final AuthController _authController = AuthController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -37,10 +30,10 @@ class _LoginPageState extends State<LoginPage> {
     _initSharedPreferences();
   }
 
-  void _initSharedPreferences() async {
+  Future<void> _initSharedPreferences() async {
+    await _authController.initSharedPreferences(
+        _emailController, _passwordController, widget.prefs);
     setState(() {
-      _emailController.text = widget.prefs.getString('email') ?? '';
-      _passwordController.text = widget.prefs.getString('password') ?? '';
       _rememberMe = widget.prefs.getBool('rememberMe') ?? false;
     });
   }
@@ -51,15 +44,11 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-              email: _emailController.text, password: _passwordController.text);
+      UserCredential? userCredential = await _authController.signInWithEmail(
+          _emailController.text, _passwordController.text);
 
-      if (_rememberMe) {
-        widget.prefs.setString('email', _emailController.text);
-        widget.prefs.setString('password', _passwordController.text);
-        widget.prefs.setBool('rememberMe', _rememberMe);
-      }
+      await _authController.saveCredentials(widget.prefs, _emailController.text,
+          _passwordController.text, _rememberMe);
 
       _emailController.clear();
       _passwordController.clear();
@@ -76,16 +65,10 @@ class _LoginPageState extends State<LoginPage> {
           builder: (_) => const MyBottomNavigationBar(),
         ),
       );
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_mapFirebaseAuthExceptionMessage(e.code)),
-        ),
-      );
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('An error occurred. Please try again later.'),
+        SnackBar(
+          content: Text(error.toString()),
         ),
       );
     } finally {
@@ -95,25 +78,13 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  String _mapFirebaseAuthExceptionMessage(String errorCode) {
-    switch (errorCode) {
-      case 'user-not-found':
-        return 'No user found for that email.';
-      case 'wrong-password':
-        return 'Wrong password provided for that user.';
-      default:
-        return 'An error occurred. Please try again later.';
-    }
-  }
-
   Future<void> _guestSignIn() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInAnonymously();
+      await _authController.signInAnonymously();
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -129,11 +100,10 @@ class _LoginPageState extends State<LoginPage> {
       );
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('An error occurred. Please try again later.'),
+        SnackBar(
+          content: Text(error.toString()),
         ),
       );
-      print("Error signing in as guest: $error");
     } finally {
       setState(() {
         _isLoading = false;
@@ -147,40 +117,26 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      final GoogleSignInAccount? googleSignInAccount =
-          await googleSignIn.signIn();
+      await _authController.signInWithGoogle();
 
-      if (googleSignInAccount != null) {
-        final GoogleSignInAuthentication googleAuth =
-            await googleSignInAccount.authentication;
-        final AuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
-
-        await FirebaseAuth.instance.signInWithCredential(credential);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Google sign-in successful.'),
-          ),
-        );
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const MyBottomNavigationBar(),
-          ),
-        );
-      }
-    } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('An error occurred. Please try again later.'),
+          content: Text('Google sign-in successful.'),
         ),
       );
-      print("Error signing in with Google: $error");
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MyBottomNavigationBar(),
+        ),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString()),
+        ),
+      );
     } finally {
       setState(() {
         _isLoading = false;
@@ -189,10 +145,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _logout() async {
-    await FirebaseAuth.instance.signOut();
-    widget.prefs.remove('email');
-    widget.prefs.remove('password');
-    widget.prefs.remove('rememberMe');
+    await _authController.signOut();
+    await _authController.clearCredentials(widget.prefs);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -266,11 +220,8 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () async {
-                              await _authenticateUser(context);
-                            },
+                      onPressed:
+                          _isLoading ? null : () => _authenticateUser(context),
                       child: _isLoading
                           ? const CircularProgressIndicator()
                           : const Text('Sign in'),
@@ -305,7 +256,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(width: 20),
                   InkWell(
-                    onTap: _guestSignIn,
+                    onTap: _isLoading ? null : _guestSignIn,
                     child: Container(
                       width: 80,
                       height: 70,

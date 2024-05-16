@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:frontend/screens/blogs_page.dart';
-import 'package:frontend/screens/chat_page.dart';
-import 'package:frontend/screens/home_page.dart';
-import 'package:frontend/screens/my_ads_page.dart';
-import 'package:frontend/screens/publish_add.dart';
+import 'package:frontend/views/blogs_page.dart';
+import 'package:frontend/views/chat_page.dart';
+import 'package:frontend/views/home_page.dart';
+import 'package:frontend/views/my_ads_page.dart';
+import 'package:frontend/views/publish_add.dart';
 
 class MyBottomNavigationBar extends StatefulWidget {
   const MyBottomNavigationBar({Key? key}) : super(key: key);
